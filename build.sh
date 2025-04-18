@@ -9,9 +9,9 @@ mkdir ${BUILD}
 mkdir ${INSTALL}
 root=$(pwd)
 cores=8
-VERSION_BINUTILS="2.41"
-VERSION_GCC="13.2.0"
-VERSION_LIBC="2.1.0"
+VERSION_BINUTILS="2.44"
+VERSION_GCC="14.2.0"
+VERSION_LIBC="2.2.1"
 
 # Get sources
 wget -q   "https://raw.githubusercontent.com/archlinux/svntogit-community/c3efadcb76f4d8b1a3784015e7c472f59dbfa7de/avr-binutils/repos/community-x86_64/avr-size.patch" &
@@ -19,7 +19,7 @@ wget -q   "https://raw.githubusercontent.com/osx-cross/homebrew-avr/d2e2566b06b9
 #wget -q   "https://raw.githubusercontent.com/osx-cross/homebrew-avr/18d50ba2a168a3b90a25c96e4bc4c053df77d7dc/Patch/avr-binutils-elf-bfd-gdb-fix.patch" &
 wget -qO- "https://ftp.gnu.org/gnu/binutils/binutils-${VERSION_BINUTILS}.tar.bz2" | tar xj --directory ${SRC} &
 wget -qO- "https://ftp.gnu.org/gnu/gcc/gcc-${VERSION_GCC}/gcc-${VERSION_GCC}.tar.xz" | tar xJ --directory ${SRC} &
-wget -qO- "https://download.savannah.gnu.org/releases/avr-libc/avr-libc-${VERSION_LIBC}.tar.bz2" | tar xj --directory ${SRC} &
+wget -qO- "https://github.com/avrdudes/avr-libc/releases/download/avr-libc-${VERSION_LIBC//./_}-release/avr-libc-${VERSION_LIBC}.tar.bz2" | tar xj --directory ${SRC} &
 wait
 
 # Build binutils first
