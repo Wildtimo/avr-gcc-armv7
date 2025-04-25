@@ -1,4 +1,4 @@
-name: Build AVR GCC
+name: Build AVR GCC for ARM
 
 on:
   push:
@@ -6,49 +6,44 @@ on:
 
 jobs:
   build-avr-gcc:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
 
     steps:
       - name: Install dependencies
         run: |
-         sudo apt-get update
-         sudo apt-get upgrade -y
-         sudo apt-get install -y git wget autoconf build-essential netpbm libmpc-dev libmpfr-dev libgmp-dev libmpfr6 texinfo doxygen flex bison libexpat1-dev slang-xfig
+          apt-get update
+          apt-get install -y \
+            build-essential \
+            git wget autoconf netpbm libmpc-dev \
+            libmpfr-dev libgmp-dev texinfo doxygen \
+            flex bison libexpat1-dev slang-xfig \
+            crossbuild-essential-armhf \
+            gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Build
+      - name: Build AVR-GCC for ARM
         run: |
-         ls
-         bash ./build.sh
+          export CC=arm-linux-gnueabihf-gcc
+          export CXX=arm-linux-gnueabihf-g++
+          export AR=arm-linux-gnueabihf-ar
+          export RANLIB=arm-linux-gnueabihf-ranlib
+          bash ./build.sh
 
-      - name: Compiling test files
+      - name: Verify toolchain (cross-compiled)
         run: |
-         /opt/avr-gcc/bin/avr-g++ --version
-         /opt/avr-gcc/bin/avr-g++ -mmcu=atmega328p test/main1.cpp
-         /opt/avr-gcc/bin/avr-g++ -mmcu=atmega328p test/main2.cpp
-
-      #- name: Fake toolchain
-      #  run: |
-      #   mkdir -p /opt/avr-gcc/bin
-      #   cp $(which true) /opt/avr-gcc/bin/avr-g++
+          file /opt/avr-gcc/bin/avr-g++
+          # Should say ELF 32-bit LSB executable, ARM, EABI5 version ...
 
       - name: Create tarball
         run: |
-         tar cjf modm-avr-gcc.tar.bz2 -C /opt avr-gcc
+          tar cjf modm-avr-gcc-armhf.tar.bz2 -C /opt avr-gcc
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: modm-avr-gcc
-          path: modm-avr-gcc.tar.bz2
-
-      - name: Create release
-        if: github.ref_type == 'tag'
-        uses: softprops/action-gh-release@v2
-        with:
-          name: AVR GCC ${{ github.ref }}
-          draft: false
-          prerelease: false
-          files: modm-avr-gcc.tar.bz2
+          name: modm-avr-gcc-armhf
+          path: modm-avr-gcc-armhf.tar.bz2
